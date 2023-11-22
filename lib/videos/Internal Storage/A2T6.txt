@@ -1,0 +1,69 @@
+6.Write a non-recursive version (C Code) of the following commands using system calls
+Only
+(a) mv
+(b) wc
+(c) touch
+
+(A) mv :
+
+Code :
+
+#include <stdio.h>
+#include <stdlib.h>
+int main() {
+   const char *sourcefile = "oldfile.txt";
+   const char *destinationfile  = "newfile.txt";
+   if (rename(sourcefile, destinationfile) != 0) {
+       printf("Error moving file");
+       return 1;
+   }
+   return 0;
+}
+
+(B) wc
+
+Code :
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <ctype.h>
+int main() {
+ const char *file= "file3.txt";
+ int fd = open(file, O_RDONLY);
+ if (fd == -1) {
+     printf("File Error");
+     return 1;
+ }
+ int words = 0;
+ char buff;
+ while (read(fd, &buff, 1) > 0) {
+     if (isspace(buff)) {
+         words++;
+     }
+ }
+ printf("Words of the paragraph are as follows : %d\n", words);
+ close(fd);
+ return 0;
+}
+
+(C) touch
+
+Code :
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+int main() {
+const char *file = "file.txt";
+int fd = open(file, O_WRONLY | O_CREAT, 0644);
+ if (fd == -1) {
+     printf("File Opening Error");
+     return 1;
+ }
+ close(fd);
+ return 0;
+}
+

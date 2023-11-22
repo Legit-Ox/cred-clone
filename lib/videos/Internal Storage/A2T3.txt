@@ -1,0 +1,43 @@
+Q.3 Write a C program using the lseek() system call to read and display 8 characters from a
+file named "seek_file." Also, it allow the user to specify the position from where to read
+those characters from the file, making it a dynamic text viewer.
+
+
+Code 3 :
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+int main() {
+    int file_desc;
+    char buffer[9];
+    off_t pos;
+    ssize_t bytes_read;
+    file_desc = open("readfile.txt", O_RDONLY);
+    if (file_desc== -1) {
+        printf("File Opening Error");
+        exit(1);
+    }
+    printf("Enter the position (0-index-based) from where to read: ");
+    if (scanf("%ld", &pos) != 1) {
+        printf("Invalid input");
+        close(file_desc);
+        exit(1);
+    }
+    if (lseek(file_desc, pos, SEEK_SET) == -1) {
+        printf("lseek failed");
+        close(file_desc);
+        exit(1);
+    }
+    bytes_read = read(file_desc, buffer, 8);
+    if (bytes_read == -1) {
+        printf("Read error");
+        close(file_desc);
+        exit(1);
+    }
+    buffer[8] = '\0';
+   printf("Read from position %ld: %s\n", pos, buffer);
+    close(file_desc);
+    return 0;
+}

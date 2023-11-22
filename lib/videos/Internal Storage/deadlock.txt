@@ -1,0 +1,64 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<pthread.h>
+
+pthread_mutex_t mutex1,mutex2;
+
+void* thread1_function(void* arg)
+{
+printf("The Thread 1  is been locking now : \n");
+pthread_mutex_lock(&mutex1);
+printf("Thread 1 has been locked \n");
+
+printf("The Thread 1 is been locking now :\n");
+pthread_mutex_lock(&mutex2);
+printf("Thread 1 has been locked\n");
+
+
+printf("Unlocking the Thread 1 now !\n");
+pthread_mutex_unlock(&mutex2);
+printf("Thread 1  Unlocked !\n");
+
+printf("Unlocking the Thread 1 now !\n");
+pthread_mutex_unlock(&mutex1);
+printf("Thread 1  Unlocked !\n");
+}
+
+void* thread2_function(void* arg)
+{
+printf("The Thread 2  is been locking now :\n");
+pthread_mutex_lock(&mutex2);
+printf("Thread 2 has been locked\n");
+
+printf("The Thread 2 is been locking now :\n");
+pthread_mutex_lock(&mutex1);
+printf("Thread 2 has been locked\n");
+
+
+printf("Unlocking the Thread 2 now !\n");
+pthread_mutex_unlock(&mutex1);
+printf("Thread 2  Unlocked !\n");
+
+printf("Unlocking the Thread 2 now !\n");
+pthread_mutex_unlock(&mutex2);
+printf("Thread 2  Unlocked !\n");
+}
+
+
+int main() {
+   pthread_t thread1, thread2;
+    // declaring the mutexes
+   pthread_mutex_init(&mutex1, NULL);
+   pthread_mutex_init(&mutex2, NULL);
+   // calling the thread function
+   pthread_create(&thread1, NULL, thread1_function, NULL);
+   pthread_create(&thread2, NULL, thread2_function, NULL);
+   
+   pthread_join(thread1, NULL);
+   pthread_join(thread2, NULL);
+
+   pthread_mutex_destroy(&mutex1);
+   pthread_mutex_destroy(&mutex2);
+
+   return 0;
+}

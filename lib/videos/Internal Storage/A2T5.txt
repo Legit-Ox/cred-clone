@@ -1,0 +1,58 @@
+Q.5  From a given file read the alternate nth byte and write it on another file with the help
+of “lseek”.
+
+Code 5:
+
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <stdbool.h>
+void function(int n)
+{
+    int f_read = open("input.txt", O_RDONLY);
+    int f_write = open("output.txt", O_RDWR);
+
+    if (f_read == -1 || f_write == -1)
+    {
+        printf("Error opening files");
+        return;
+    }
+    bool flag = false;
+    char read_buf;
+    int bytes_read;
+
+    while ((bytes_read = read(f_read, &read_buf, 1)) > 0)
+    {
+        if (flag == false)
+        {
+            lseek(f_read, n - 2, SEEK_CUR);
+            read(f_read, &read_buf, 1);
+            off_t position = lseek(f_read, 0, SEEK_CUR);
+            printf("Current position: %ld\n", position);
+            write(f_write, &read_buf, 1);
+        }
+        else
+        {
+            lseek(f_read, n-2 , SEEK_CUR);
+            read(f_read, &read_buf, 1);
+           off_t position = lseek(f_read, 0, SEEK_CUR);
+            printf("Current position: %ld\n", position);
+        }
+
+        flag = !flag;
+    }
+    if (bytes_read == -1)
+    {
+        printf("Error reading from file");
+    }
+
+    close(f_read);
+    close(f_write);
+}
+int main()
+{
+    int n = 5;
+    function(n);
+    return 0;
+}

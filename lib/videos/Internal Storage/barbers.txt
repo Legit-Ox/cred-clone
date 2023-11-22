@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <semaphore.h>
+
+#define NUM_CHAIRS 3
+#define NUM_CUSTOMERS 5
+
+sem_t barber_semaphore;
+sem_t customer_semaphore;
+sem_t mutex;
+
+void *barber(void *arg) {
+   while(1) {
+       sem_wait(&barber_semaphore);
+       sem_wait(&mutex);
+       printf("The barber is sleeping...\n");
+       sem_post(&mutex);
+       sem_wait(&customer_semaphore);
+       printf("The barber is cutting hair for a customer\n");
+       sleep(random() % 5 + 1);
+       printf("The barber has finished cutting hair for a customer\n");
+       sem_post(&barber_semaphore);
+   }
+}
+
+void *customer(void *arg) {
+   int *id = (int *)arg;
+   sleep(random() % 5 + 1);
+   sem_wait(&mutex);
+   if(sem_getvalue(&barber_semaphore, NULL) == 0) {
+       printf("Customer %d is leaving because the barber is sleeping\n", *id);
+       sem_post(&mutex);
+   } else {
+       printf("Customer %d is waiting in the waiting room\n", *id);
+       sem_post(&mutex);
+       sem_post(&barber_semaphore);
+       sem_wait(&customer_semaphore);
+       printf("Customer %d has finished getting a haircut\n", *id);
+   }
+}
+
+int main() {
+   pthread_t barber_thread;
+   pthread_t customer_threads[NUM_CUSTOMERS];
+   int customer_ids[NUM_CUSTOMERS];
+
+   sem_init(&barber_semaphore, 0, 0);
+   sem_init(&customer_semaphore, 0, 0);
+   sem_init(&mutex, 0, 1);
+
+   pthread_create(&barber_thread, NULL, barber, NULL);
+
+   for(int i = 0; i < NUM_CUSTOMERS; i++) {
+       customer_ids[i] = i;
+       pthread_create(&customer_threads[i], NULL, customer, &customer_ids[i]);
+   }
+
+   for(int i = 0; i < NUM_CUSTOMERS; i++) {
+       pthread_join(customer_threads[i], NULL);
+   }
+
+   pthread_join(barber_thread, NULL);
+
+   sem_destroy(&barber_semaphore);
+   sem_destroy(&customer_semaphore);
+   sem_destroy(&mutex);
+
+   return 0;
+}
+
+
+gcc -pthread barber_shop.c -o barber_shop
+./barber_shop
+

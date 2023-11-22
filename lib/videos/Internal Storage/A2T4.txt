@@ -1,0 +1,36 @@
+Q.4 Create a Parent-Child relationship between two processes.
+
+The Parent process prints:
+
+(a) Parent(P) is having ID < P ID >
+(b) ID of P’s child is < ChildP ID >
+
+The child prints:
+(c) Child is having ID < P ID >
+(d) My Parent ID is < ParentP ID >
+
+Make sure the order of statements is as follows:
+A
+C
+D
+B
+
+Code 4 :
+
+
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdio.h>
+#include <unistd.h>
+int main() {
+    pid_t child_pid = fork(); // creation of the child process using the fork statement 
+    if (child_pid == 0) {
+        printf("Child is having ID %d\n",getpid());  // to get the process id of the current process
+        printf("My Parent ID is %d\n",getppid());   // to get the process id of the parent process
+    } else {
+        printf("Parent(P) is having ID %d\n",getpid()); 
+        wait(NULL);
+        printf("ID of P’s child is %d\n",child_pid); 
+    }
+    return 0;
+}
